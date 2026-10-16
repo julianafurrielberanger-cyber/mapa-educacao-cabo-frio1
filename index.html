@@ -79,13 +79,13 @@ function abrirDocumentoEscola(k,j){
 }
 function abrirSemeEscola(){
  if(perfil!=='seme'){abrirEscolaInterna(escolaAtiva);return}
- document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirFicha('+escolaAtiva+')">← Voltar à ficha pública da escola</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / SEME</div><h3>Acompanhamento reservado da SEME</h3><p class="muted">Selecione o setor que atua nesta unidade.</p>'+setores.map((s,i)=>'<button class="item" onclick="abrirSemeSetorEscola('+i+')">🏛️ '+esc(s)+' →</button>').join('');
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirFicha('+escolaAtiva+')">← Voltar à ficha pública da escola</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / SEME</div><h3>Acompanhamento reservado da SEME</h3><p class="muted">Selecione o setor que atua nesta unidade.</p><button class="item" onclick="abrirHistorico()">📊 Histórico de ações da escola →</button>'+setores.map((s,i)=>'<button class="item" onclick="abrirSemeSetorEscola('+i+')">🏛️ '+esc(s)+' →</button>').join('');
 }
 let setorEscolaAtivo=0;
 function abrirSemeSetorEscola(i){
  if(perfil!=='seme')return;
  setorEscolaAtivo=i;
- document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirSemeEscola()">← Todos os setores</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / SEME / '+esc(setores[i])+'</div><h3>'+esc(setores[i])+'</h3><p class="muted">Registros fictícios de atuação deste setor nesta escola.</p>'+Object.keys(semePorEscola).map((p,k)=>'<button class="item" onclick="abrirPastaSemeEscola('+k+')">'+p+' →</button>').join('')+(i===0?'<button class="item" onclick="projedEscolaAreas()">📁 Áreas do PROJED nesta escola →</button>':'');
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirSemeEscola()">← Todos os setores</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / SEME / '+esc(setores[i])+'</div><h3>'+esc(setores[i])+'</h3><p class="muted">Registros fictícios de atuação deste setor nesta escola.</p><button class="item" onclick="abrirHistoricoSetor('+i+')">📊 Histórico deste setor →</button>'+Object.keys(semePorEscola).map((p,k)=>'<button class="item" onclick="abrirPastaSemeEscola('+k+')">'+p+' →</button>').join('')+(i===0?'<button class="item" onclick="projedEscolaAreas()">📁 Áreas do PROJED nesta escola →</button>':'');
 }
 
 const historicoDemo=[
