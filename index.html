@@ -17,12 +17,12 @@ const pastasSetor={'📁 Planejamento':['Plano de trabalho — exemplo.pdf','Cro
 let mapa,marcadores=[],perfil='escola',escolaAtiva=0,visao='interno';
 function tab(id){visao=id;['mapa','publico','interno','setores'].forEach(x=>{document.getElementById(x).classList.toggle('hidden',x!==id);document.getElementById('tab-'+x).classList.toggle('active',x===id)});if(id==='mapa'&&mapa)setTimeout(()=>mapa.invalidateSize(),80)}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function escolher(i){escolaAtiva=i;const s=escolas[i];document.getElementById('detail').innerHTML='<h3>'+esc(s.nome)+'</h3><p><strong>Região:</strong> '+esc(s.bairro)+'</p><p><span class="pill">Ficha pública demonstrativa</span></p><p class="muted">Endereço exato, telefone, modalidades e indicadores: aguardando validação.</p><button onclick="tab(\'publico\');publica('+i+')">Abrir ficha pública →</button> <button onclick="tab(\'interno\');role(\'escola\');internoEscola('+i+')">Ver pastas internas →</button>';if(mapa){mapa.setView([s.lat,s.lng],13);marcadores[i].openPopup()}}
+function escolher(i){escolaAtiva=i;const s=escolas[i];document.getElementById('detail').innerHTML='<h3>'+esc(s.nome)+'</h3><p><strong>Região:</strong> '+esc(s.bairro)+'</p><p><span class="pill">Ficha pública demonstrativa</span></p><p class="muted">Endereço exato, telefone, modalidades e indicadores: aguardando validação.</p><button onclick="tab(\'publico\');publica('+i+')">Abrir ficha pública →</button> <button onclick="tab(\'interno\');role(\'escola\');internoEscola('+i+')">Ver gestão escolar (demonstração) →</button>';if(mapa){mapa.setView([s.lat,s.lng],13);marcadores[i].openPopup()}}
 function publica(i){let s=escolas[i];document.getElementById('public-content').innerHTML='<button class="back" onclick="portal()">← Voltar ao portal</button><h3>'+esc(s.nome)+'</h3><p><strong>Localidade:</strong> '+esc(s.bairro)+'</p><div class="doc">📍 Endereço e contato <small>Aguardando informações oficiais</small></div><div class="doc">📚 Etapas e modalidades de ensino <small>Aguardando validação</small></div><div class="doc">🌱 Projetos da escola <small>Espaço demonstrativo para apresentação de ações pedagógicas</small></div><div class="doc">📄 Documentos públicos <small>Projeto pedagógico, calendário e comunicados — exemplos, sem arquivos reais</small></div>'}
 function portal(){document.getElementById('public-content').innerHTML='<h3>Unidades escolares</h3>'+escolas.map((s,i)=>'<button class="item" onclick="publica('+i+')">🏫 '+esc(s.nome)+' <small>— '+esc(s.bairro)+'</small> →</button>').join('')+'<h3>Informações para a comunidade</h3><div class="doc">📢 Notícias e comunicados <small>Conteúdo ilustrativo, a ser integrado posteriormente</small></div><div class="doc">📅 Calendário escolar <small>Documento público ainda não cadastrado</small></div><div class="doc">💡 Projetos educacionais <small>Vitrine pública de iniciativas da rede</small></div>'}
-function role(r){perfil=r;['escola','seme','visitante'].forEach(x=>document.getElementById('role-'+x).classList.toggle('active',x===r));if(r==='visitante'){document.getElementById('internal-content').innerHTML='<div class="notice">Visitantes não acessam documentos internos. Use o Portal público para informações abertas.</div><button onclick="tab(\'publico\')">Ir ao portal público →</button>';return}if(r==='seme'){document.getElementById('internal-content').innerHTML='<h3>Visão da SEME</h3>'+setores.map((s,i)=>'<button class="item" onclick="abrirSetor('+i+',\'interno-content\')">🏛️ '+esc(s)+' →</button>').join('')+'<button class="item" onclick="listaEscolas()">🏫 Consultar pastas das escolas →</button>';return}listaEscolas()}
+function role(r){perfil=r;['escola','seme','visitante'].forEach(x=>document.getElementById('role-'+x).classList.toggle('active',x===r));if(r==='visitante'){document.getElementById('internal-content').innerHTML='<div class="notice">Visitantes não acessam documentos internos. Use o Portal público para informações abertas.</div><button onclick="tab(\'publico\')">Ir ao portal público →</button>';return}if(r==='seme'){document.getElementById('internal-content').innerHTML='<h3>Visão da SEME</h3><p class="muted">Selecione um setor para ver as escolas acompanhadas, ou entre diretamente por escola.</p>'+setores.map((s,i)=>'<button class="item" onclick="escolasPorSetor('+i+')">🏛️ '+esc(s)+' →</button>').join('')+'<button class="item" onclick="listaEscolas()">🏫 Consultar pastas das escolas →</button>';return}listaEscolas()}
 function listaEscolas(){document.getElementById('internal-content').innerHTML='<h3>Selecione a escola</h3>'+escolas.map((s,i)=>'<button class="item" onclick="internoEscola('+i+')">🏫 '+esc(s.nome)+' →</button>').join('')}
-function internoEscola(i){escolaAtiva=i;let s=escolas[i];document.getElementById('internal-content').innerHTML='<button class="back" onclick="role(\''+perfil+'\')">← Voltar</button><div class="crumb">Área interna / '+esc(s.nome)+'</div><h3>Pastas da unidade</h3>'+Object.keys(pastasEscola).map((p,k)=>'<button class="item" onclick="abrirPasta(\'escola\','+k+')">'+p+' →</button>').join('')}
+function internoEscola(i){abrirEscolaInterna(i);return;escolaAtiva=i;let s=escolas[i];document.getElementById('internal-content').innerHTML='<button class="back" onclick="role(\''+perfil+'\')">← Voltar</button><div class="crumb">Área interna / '+esc(s.nome)+'</div><h3>Pastas da unidade</h3>'+Object.keys(pastasEscola).map((p,k)=>'<button class="item" onclick="abrirPasta(\'escola\','+k+')">'+p+' →</button>').join('')}
 function abrirPasta(tipo,k){const p=tipo==='escola'?pastasEscola:pastasSetor;let chave=Object.keys(p)[k];let alvo=tipo==='escola'?'internal-content':'sector-content';let volta=tipo==='escola'?'internoEscola('+escolaAtiva+')':'abrirSetor('+setorAtivo+',\'sector-content\')';document.getElementById(alvo).innerHTML='<button class="back" onclick="'+volta+'">← Voltar às pastas</button><div class="crumb">'+(tipo==='escola'?esc(escolas[escolaAtiva].nome):esc(setores[setorAtivo]))+' / '+chave+'</div><h3>'+chave+'</h3>'+p[chave].map((d,j)=>'<button class="item" onclick="documento(\''+tipo+'\','+k+','+j+')">📄 '+esc(d)+' →</button>').join('')}
 function documento(tipo,k,j){let p=tipo==='escola'?pastasEscola:pastasSetor;let chave=Object.keys(p)[k],nome=p[chave][j],alvo=tipo==='escola'?'internal-content':'sector-content';document.getElementById(alvo).innerHTML='<button class="back" onclick="abrirPasta(\''+tipo+'\','+k+')">← Voltar à pasta</button><h3>📄 '+esc(nome)+'</h3><div class="doc"><strong>Prévia de documento demonstrativo</strong><p>Unidade/setor: '+esc(tipo==='escola'?escolas[escolaAtiva].nome:setores[setorAtivo])+'</p><p>Categoria: '+esc(chave)+'</p><p>Status: exemplo para testar a navegação</p><p class="muted">Este arquivo é fictício e não contém informações reais. Na versão futura, este espaço poderá exibir documentos autorizados conforme o perfil do usuário.</p></div>'}
 let setorAtivo=0;
@@ -31,6 +31,82 @@ function voltarProjed(t){if(t==='internal-content')role('seme');else setoresInic
 function projedArea(i,t){let a=areasProjed[i];document.getElementById(t).innerHTML='<button class="back" onclick="projedInicio(\''+t+'\')">← Voltar às áreas</button><div class="crumb">PROJED / '+esc(a.nome)+'</div><h3>'+esc(a.nome)+'</h3>'+Object.keys(a.pastas).map((p,k)=>'<button class="item" onclick="projedPasta('+i+','+k+',\''+t+'\')">📁 '+esc(p)+' →</button>').join('')}
 function projedPasta(i,k,t){let a=areasProjed[i],p=Object.keys(a.pastas)[k];document.getElementById(t).innerHTML='<button class="back" onclick="projedArea('+i+',\''+t+'\')">← Voltar às pastas</button><div class="crumb">PROJED / '+esc(a.nome)+' / '+esc(p)+'</div><h3>'+esc(p)+'</h3>'+a.pastas[p].map((d,j)=>'<button class="item" onclick="projedDoc('+i+','+k+','+j+',\''+t+'\')">📄 '+esc(d)+' →</button>').join('')}
 function projedDoc(i,k,j,t){let a=areasProjed[i],p=Object.keys(a.pastas)[k],d=a.pastas[p][j];document.getElementById(t).innerHTML='<button class="back" onclick="projedPasta('+i+','+k+',\''+t+'\')">← Voltar à pasta</button><h3>📄 '+esc(d)+'</h3><div class="doc"><strong>Prévia demonstrativa</strong><p>PROJED / '+esc(a.nome)+' / '+esc(p)+'</p><p class="muted">Documento fictício. Ainda não existe integração com Google Drive nem upload de arquivos.</p></div>'}
+
+const escolaGestao={
+'📁 PPP e projetos pedagógicos':['PPP da unidade — exemplo.pdf','Projetos pedagógicos — exemplo.docx'],
+'📁 Turnos, turmas e matrículas':['Quadro de turnos e turmas — exemplo.xlsx','Quantitativo de alunos por turno — exemplo.xlsx'],
+'📁 Equipe escolar':['Organização da equipe — exemplo.pdf'],
+'📁 Planejamento e calendário':['Planejamento anual — exemplo.pdf','Calendário escolar — exemplo.pdf']
+};
+const semePorEscola={
+'📁 Acompanhamento e registros':['Relatório de visita — exemplo.pdf','Registro de ações na unidade — exemplo.docx'],
+'📁 Demandas e providências':['Solicitações e encaminhamentos — exemplo.xlsx','Histórico de atendimento — exemplo.pdf']
+};
+function abrirEscolaInterna(i){
+ escolaAtiva=i;
+ const s=escolas[i];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="listaEscolas()">← Todas as escolas</button><div class="crumb">Escolas / '+esc(s.nome)+'</div><h3>'+esc(s.nome)+'</h3><p class="muted">Dois espaços separados. Os perfis aqui são apenas uma simulação visual.</p><button class="item" onclick="abrirGestaoEscola()">🏫 Gestão da escola — PPP, projetos, turnos e alunos →</button>'+(perfil==='seme'?'<button class="item" onclick="abrirSemeEscola()">🔐 Acompanhamento reservado da SEME — por setor →</button>':'<div class="doc"><small>O acompanhamento reservado da SEME não aparece neste perfil demonstrativo.</small></div>');
+}
+function abrirGestaoEscola(){
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirEscolaInterna('+escolaAtiva+')">← Voltar à escola</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / Gestão escolar</div><h3>Gestão da escola</h3>'+Object.keys(escolaGestao).map((p,k)=>'<button class="item" onclick="abrirPastaEscola('+k+')">'+p+' →</button>').join('');
+}
+function abrirPastaEscola(k){
+ let p=Object.keys(escolaGestao)[k];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirGestaoEscola()">← Voltar às pastas</button><h3>'+esc(p)+'</h3>'+escolaGestao[p].map((d,j)=>'<button class="item" onclick="abrirDocumentoEscola('+k+','+j+')">📄 '+esc(d)+' →</button>').join('');
+}
+function abrirDocumentoEscola(k,j){
+ let p=Object.keys(escolaGestao)[k],d=escolaGestao[p][j];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirPastaEscola('+k+')">← Voltar à pasta</button><h3>📄 '+esc(d)+'</h3><div class="doc"><strong>Documento de demonstração</strong><p>Escola: '+esc(escolas[escolaAtiva].nome)+'</p><p>Categoria: '+esc(p)+'</p><p class="muted">Não é um arquivo real. Futuramente será vinculado ao Google Drive institucional.</p></div>';
+}
+function abrirSemeEscola(){
+ if(perfil!=='seme'){abrirEscolaInterna(escolaAtiva);return}
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirEscolaInterna('+escolaAtiva+')">← Voltar à escola</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / SEME</div><h3>Acompanhamento reservado da SEME</h3><p class="muted">Selecione o setor que atua nesta unidade.</p>'+setores.map((s,i)=>'<button class="item" onclick="abrirSemeSetorEscola('+i+')">🏛️ '+esc(s)+' →</button>').join('');
+}
+let setorEscolaAtivo=0;
+function abrirSemeSetorEscola(i){
+ if(perfil!=='seme')return;
+ setorEscolaAtivo=i;
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirSemeEscola()">← Todos os setores</button><div class="crumb">'+esc(escolas[escolaAtiva].nome)+' / SEME / '+esc(setores[i])+'</div><h3>'+esc(setores[i])+'</h3><p class="muted">Registros fictícios de atuação deste setor nesta escola.</p>'+Object.keys(semePorEscola).map((p,k)=>'<button class="item" onclick="abrirPastaSemeEscola('+k+')">'+p+' →</button>').join('')+(i===0?'<button class="item" onclick="projedEscolaAreas()">📁 Áreas do PROJED nesta escola →</button>':'');
+}
+function abrirPastaSemeEscola(k){
+ if(perfil!=='seme')return;
+ let p=Object.keys(semePorEscola)[k];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirSemeSetorEscola('+setorEscolaAtivo+')">← Voltar ao setor</button><h3>'+esc(p)+'</h3>'+semePorEscola[p].map((d,j)=>'<button class="item" onclick="abrirDocSemeEscola('+k+','+j+')">📄 '+esc(d)+' →</button>').join('');
+}
+function abrirDocSemeEscola(k,j){
+ if(perfil!=='seme')return;
+ let p=Object.keys(semePorEscola)[k],d=semePorEscola[p][j];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirPastaSemeEscola('+k+')">← Voltar à pasta</button><h3>📄 '+esc(d)+'</h3><div class="doc"><strong>Registro reservado — demonstração</strong><p>Escola: '+esc(escolas[escolaAtiva].nome)+'</p><p>Setor: '+esc(setores[setorEscolaAtivo])+'</p><p class="muted">Nenhum dado interno real está publicado. A privacidade dependerá de permissões no Drive e autenticação verdadeira.</p></div>';
+}
+function projedEscolaAreas(){
+ if(perfil!=='seme')return;
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirSemeSetorEscola(0)">← Voltar ao PROJED</button><h3>PROJED nesta escola</h3>'+areasProjed.map((a,i)=>'<button class="item" onclick="projedEscolaArea('+i+')">📁 '+esc(a.nome)+' →</button>').join('');
+}
+function projedEscolaArea(i){
+ if(perfil!=='seme')return;
+ let a=areasProjed[i];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="projedEscolaAreas()">← Áreas do PROJED</button><h3>'+esc(a.nome)+'</h3>'+Object.keys(a.pastas).map((p,k)=>'<button class="item" onclick="projedEscolaPasta('+i+','+k+')">📁 '+esc(p)+' →</button>').join('');
+}
+function projedEscolaPasta(i,k){
+ if(perfil!=='seme')return;
+ let a=areasProjed[i],p=Object.keys(a.pastas)[k];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="projedEscolaArea('+i+')">← Voltar às pastas</button><h3>'+esc(p)+'</h3>'+a.pastas[p].map((d,j)=>'<button class="item" onclick="projedEscolaDoc('+i+','+k+','+j+')">📄 '+esc(d)+' →</button>').join('');
+}
+function projedEscolaDoc(i,k,j){
+ if(perfil!=='seme')return;
+ let a=areasProjed[i],p=Object.keys(a.pastas)[k],d=a.pastas[p][j];
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="projedEscolaPasta('+i+','+k+')">← Voltar à pasta</button><h3>📄 '+esc(d)+'</h3><div class="doc"><strong>Registro fictício do PROJED nesta escola</strong><p>'+esc(escolas[escolaAtiva].nome)+'</p><p>'+esc(a.nome)+' / '+esc(p)+'</p><p class="muted">Prévia demonstrativa, sem arquivo real.</p></div>';
+}
+function escolasPorSetor(i){
+ if(perfil!=='seme')return;
+ setorEscolaAtivo=i;
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="role(\'seme\')">← Voltar aos setores</button><h3>'+esc(setores[i])+' — escolas acompanhadas</h3><p class="muted">Visão por setor dos mesmos espaços reservados dentro das escolas.</p>'+escolas.map((s,j)=>'<button class="item" onclick="abrirSemePorSetor('+j+')">🏫 '+esc(s.nome)+' →</button>').join('');
+}
+function abrirSemePorSetor(j){
+ escolaAtiva=j;
+ abrirSemeSetorEscola(setorEscolaAtivo);
+}
+
 function abrirSetor(i,alvo){if(i===0){projedInicio(alvo==='interno-content'?'internal-content':'sector-content');return}setorAtivo=i;const t=alvo==='interno-content'?'internal-content':'sector-content';document.getElementById(t).innerHTML='<button class="back" onclick="'+(t==='internal-content'?'role(\'seme\')':'setoresInicio()')+'">← Voltar</button><div class="crumb">SEME / '+esc(setores[i])+'</div><h3>'+esc(setores[i])+'</h3><p class="muted">Documentos de exemplo — sem arquivos reais.</p>'+Object.keys(pastasSetor).map((p,k)=>'<button class="item" onclick="abrirPastaSetor('+k+',\''+t+'\')">'+p+' →</button>').join('')}
 function abrirPastaSetor(k,t){if(t==='sector-content'){abrirPasta('setor',k)}else{let chave=Object.keys(pastasSetor)[k];document.getElementById(t).innerHTML='<button class="back" onclick="abrirSetor('+setorAtivo+',\'interno-content\')">← Voltar</button><h3>'+chave+'</h3>'+pastasSetor[chave].map((d,j)=>'<button class="item" onclick="documentoSetorInterno('+k+','+j+')">📄 '+esc(d)+' →</button>').join('')}}
 function documentoSetorInterno(k,j){let p=Object.keys(pastasSetor)[k],d=pastasSetor[p][j];document.getElementById('internal-content').innerHTML='<button class="back" onclick="abrirPastaSetor('+k+',\'internal-content\')">← Voltar à pasta</button><h3>📄 '+esc(d)+'</h3><div class="doc"><strong>Documento fictício</strong><p>Setor: '+esc(setores[setorAtivo])+'</p><p>Categoria: '+p+'</p><p class="muted">Simulação de visualização; nenhum documento interno real foi publicado.</p></div>'}
