@@ -101,8 +101,20 @@ const historicoDemo=[
 function entrarHistoricoDaFicha(){perfil='seme';tab('interno');abrirHistorico()}
 function painelRede(){
  if(perfil!=='seme')return;
- document.getElementById('internal-content').innerHTML='<button class="back" onclick="role(\'seme\')">← Voltar à SEME</button><h3>📊 Painel de acompanhamento da rede</h3><div class="notice">Dados totalmente fictícios das cinco escolas-piloto. Este painel não representa a situação real da rede municipal.</div><div class="filtros"><label>Escola<select id="painel-escola" onchange="atualizarPainel()"><option value="">Todas as escolas</option>'+escolas.map((s,i)=>'<option value="'+i+'">'+esc(s.nome)+'</option>').join('')+'</select></label><label>Setor<select id="painel-setor" onchange="atualizarPainel()"><option value="">Todos os setores</option>'+setores.map((s,i)=>'<option value="'+i+'">'+esc(s)+'</option>').join('')+'</select></label><label>De<input type="date" id="painel-inicio" onchange="atualizarPainel()"></label><label>Até<input type="date" id="painel-fim" onchange="atualizarPainel()"></label></div><div id="painel-indicadores"></div><h3>Ações por escola</h3><div id="painel-escolas"></div><h3>Ações por setor</h3><div id="painel-setores"></div><h3>Registros demonstrativos</h3><div id="painel-registros"></div>';
+ document.getElementById('internal-content').innerHTML='<button class="back" onclick="role(\'seme\')">← Voltar à SEME</button><h3>📊 Painel de acompanhamento da rede</h3><div class="notice">Dados totalmente fictícios das cinco escolas-piloto. Este painel não representa a situação real da rede municipal.</div><div class="filtros"><label>Escola<select id="painel-escola" onchange="atualizarPainel()"><option value="">Todas as escolas</option>'+escolas.map((s,i)=>'<option value="'+i+'">'+esc(s.nome)+'</option>').join('')+'</select></label><label>Setor<select id="painel-setor" onchange="atualizarPainel()"><option value="">Todos os setores</option>'+setores.map((s,i)=>'<option value="'+i+'">'+esc(s)+'</option>').join('')+'</select></label><label>De<input type="date" id="painel-inicio" onchange="atualizarPainel()"></label><label>Até<input type="date" id="painel-fim" onchange="atualizarPainel()"></label></div><button class="item" style="background:#dff1e8;font-weight:700" onclick="exportarPainelCSV()">⬇️ Exportar dados filtrados (CSV para Power BI)</button><p class="muted">Arquivo demonstrativo, sem dados reais. Compatível com Excel e importação no Power BI.</p><div id="painel-indicadores"></div><h3>Ações por escola</h3><div id="painel-escolas"></div><h3>Ações por setor</h3><div id="painel-setores"></div><h3>Registros demonstrativos</h3><div id="painel-registros"></div>';
  atualizarPainel();
+}
+function registrosFiltradosPainel(){
+ const e=document.getElementById('painel-escola').value,s=document.getElementById('painel-setor').value,a=document.getElementById('painel-inicio').value,b=document.getElementById('painel-fim').value;
+ return historicoDemo.filter(r=>(e===''||r.escola===Number(e))&&(s===''||r.setor===Number(s))&&(!a||r.data>=a)&&(!b||r.data<=b));
+}
+function exportarPainelCSV(){
+ const campos=['Escola','Setor','Data','Tipo de ação','Situação','Descrição da ação','Encaminhamento','Prazo'];
+ const celula=v=>{let t=String(v??'');if(/^[\\s]*[=+@-]/.test(t))t="'"+t;return '"'+t.replace(/"/g,'""')+'"';};
+ const linhas=registrosFiltradosPainel().map(r=>[escolas[r.escola].nome,setores[r.setor],r.data,r.tipo,r.situacao,r.acao,r.encaminhamento,r.prazo]);
+ const csv='\\uFEFF'+[campos,...linhas].map(l=>l.map(celula).join(';')).join('\\r\\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='mapa-educacao-cabo-frio-registros-demonstrativos.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function atualizarPainel(){
  const e=document.getElementById('painel-escola').value,s=document.getElementById('painel-setor').value,a=document.getElementById('painel-inicio').value,b=document.getElementById('painel-fim').value;
